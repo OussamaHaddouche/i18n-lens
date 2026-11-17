@@ -1,84 +1,70 @@
-# LocaleLens 🌍
+# LocaleLens
 
-LocaleLens analyzes your frontend codebase and translation catalogs to detect internationalization issues before they reach production.
+LocaleLens scans your frontend source and translation catalogs for i18n problems: hardcoded strings, missing keys, unused messages, and coverage gaps.
 
-It helps developers identify hardcoded strings, missing translations, unused messages and translation coverage gaps through static analysis and automated reporting.
+> Under active development. APIs may change.
 
-> 🚧 LocaleLens is currently under active development. Features and APIs are subject to change.
+## The problem
 
----
+i18n bugs slip through lint and typecheck. Typical misses:
 
-## The Problem
+- Hardcoded user-facing strings in components
+- Keys missing from one or more locales
+- Obsolete messages nothing references anymore
+- Catalogs that drift apart across languages
+- Incomplete coverage
 
-Internationalization issues are easy to introduce and surprisingly difficult to catch automatically.
-
-Traditional linting and type checking don't necessarily identify:
-
-- Hardcoded user-facing strings scattered throughout components.
-- Translation keys missing from one or more locales.
-- Obsolete translation messages that are no longer referenced.
-- Inconsistent translation catalogs across languages.
-- Incomplete translation coverage.
-
-These problems often go unnoticed until someone manually reviews translation files or discovers an issue in production.
-
-**LocaleLens aims to make internationalization quality measurable and enforceable through automated analysis.**
+You usually find these by hand, or in production. LocaleLens turns that into automated checks you can run in CI.
 
 ## Features
 
-### Static Code Analysis
+### Static code analysis
 
-Analyze TypeScript and TSX source files to identify internationalization issues.
+TypeScript and TSX source:
 
-- [ ] Detect hardcoded JSX text.
-- [ ] Detect hardcoded strings in JSX expressions.
-- [ ] Detect hardcoded user-facing attributes (`placeholder`, `title`, `aria-label`, etc.).
-- [ ] Extract translation references from FormatJS APIs.
-- [ ] Identify dynamically generated or unresolved translation references.
+- [ ] Hardcoded JSX text
+- [ ] Hardcoded strings in JSX expressions
+- [ ] Hardcoded user-facing attributes (`placeholder`, `title`, `aria-label`, etc.)
+- [ ] Translation references from FormatJS APIs
+- [ ] Dynamically generated or unresolved translation references
 
-### Translation Catalog Analysis
+### Translation catalog analysis
 
-Compare translation catalogs across configured locales.
+Across configured locales:
 
-- [ ] Detect missing translation keys.
-- [ ] Detect unused translation keys.
-- [ ] Detect inconsistent translation catalogs.
-- [ ] Validate interpolation variables.
-- [ ] Support configurable source locales.
+- [ ] Missing keys
+- [ ] Unused keys
+- [ ] Inconsistent catalogs
+- [ ] Interpolation variable validation
+- [ ] Configurable source locales
 
-### Translation Coverage
+### Translation coverage
 
-Measure translation completeness across your application.
-
-- [ ] Calculate coverage per locale.
-- [ ] Identify untranslated messages.
-- [ ] Generate coverage summaries.
-- [ ] Support configurable coverage thresholds.
+- [ ] Coverage per locale
+- [ ] Untranslated messages
+- [ ] Coverage summaries
+- [ ] Configurable thresholds
 
 ### Reporting
 
-Provide actionable reports that can be integrated into development workflows.
+- [ ] Terminal output
+- [ ] JSON reports
+- [ ] HTML reports
+- [ ] Configurable rule severity
+- [ ] CI-friendly exit codes
 
-- [ ] Terminal output.
-- [ ] JSON reports.
-- [ ] HTML reports.
-- [ ] Configurable rule severity.
-- [ ] CI-friendly exit codes.
+### Later
 
-### Future Features
+- [ ] Automatic translation descriptor generation
+- [ ] GitHub Actions + PR annotations
+- [ ] More i18n adapters (i18next, next-intl, etc.)
+- [ ] Visual localization testing with Playwright
+- [ ] RTL layout validation
+- [ ] Runtime translation diagnostics
 
-- [ ] Automatic translation descriptor generation.
-- [ ] GitHub Actions integration and pull request annotations.
-- [ ] Additional i18n adapters (i18next, next-intl, etc.).
-- [ ] Visual localization testing with Playwright.
-- [ ] RTL layout validation.
-- [ ] Runtime translation diagnostics.
+## How it works
 
----
-
-## How It Works
-
-LocaleLens combines static source-code analysis with translation catalog inspection.
+LocaleLens pairs static source analysis with catalog inspection.
 
 ```text
        Frontend Source Code
@@ -114,31 +100,23 @@ LocaleLens combines static source-code analysis with translation catalog inspect
     CLI    JSON   HTML   CI/CD
 ```
 
-The analysis engine is designed to remain independent of specific frontend frameworks and internationalization libraries.
+The analysis engine stays framework-agnostic. React, FormatJS, and other specifics live in adapters.
 
-Framework-specific and i18n-specific behavior is handled through adapters.
+## Technology stack
 
----
+| Technology              | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| TypeScript              | Core implementation                |
+| TypeScript Compiler API | Source and AST analysis            |
+| FormatJS                | First i18n adapter                 |
+| Node.js                 | Runtime                            |
+| pnpm                    | Monorepo and packages              |
+| Vitest                  | Unit and integration tests         |
+| Commander               | CLI                                |
+| Zod                     | Config validation                  |
+| Playwright              | Planned visual localization tests  |
 
-## Initial Technology Stack
-
-| Technology | Purpose |
-|---|---|
-| TypeScript | Core implementation |
-| TypeScript Compiler API | Source-code and AST analysis |
-| FormatJS | Initial internationalization adapter |
-| Node.js | Execution environment |
-| pnpm | Monorepo and package management |
-| Vitest | Unit and integration testing |
-| Commander | CLI implementation |
-| Zod | Configuration validation |
-| Playwright | Future visual localization testing |
-
----
-
-## Planned Architecture
-
-LocaleLens is organized around a modular analysis engine.
+## Planned architecture
 
 ```text
 localelens/
@@ -171,41 +149,27 @@ localelens/
 └── pnpm-workspace.yaml
 ```
 
-### Core
+**Core** — Framework-independent engine, types, rules, and findings.
 
-Contains the framework-independent analysis engine, normalized types, rule execution and finding management.
+**Parser** — Parses source files and pulls out AST details the engine needs.
 
-### Parser
+**Adapters** — Map framework/i18n patterns into the core model. FormatJS first.
 
-Responsible for parsing source files and extracting relevant AST information.
+**CLI** — How you configure and run analysis.
 
-### Adapters
+**Reporters** — Turn findings into terminal, JSON, or HTML output.
 
-Translate framework-specific and i18n-specific patterns into a common representation understood by the core.
+## Planned developer experience
 
-The initial adapter targets FormatJS.
+Rough shape of the intended API (not all of this exists yet):
 
-### CLI
-
-Provides the developer-facing interface for configuring and executing analysis.
-
-### Reporters
-
-Transform analysis results into different output formats.
-
----
-
-## Planned Developer Experience
-
-The intended usage will look something like this:
-
-### Installation
+### Install
 
 ```bash
 npm install -D localelens
 ```
 
-### Configuration
+### Config
 
 ```ts
 // localelens.config.ts
@@ -237,13 +201,13 @@ export default defineConfig({
 });
 ```
 
-### Run Analysis
+### Run
 
 ```bash
 npx localelens analyze
 ```
 
-### Example Output
+### Example output
 
 ```text
 LocaleLens
@@ -280,63 +244,33 @@ WARNING ar.json
 Analysis completed.
 ```
 
-*The configuration and output above illustrate the intended API and are not necessarily available in the current implementation.*
+## Roadmap
 
----
+| Milestone | Scope                                | Status      |
+| --------- | ------------------------------------ | ----------- |
+| 0.1       | Project foundation and configuration | In progress |
+| 0.1       | Translation catalog analysis         | Planned     |
+| 0.1       | FormatJS source analysis             | Planned     |
+| 0.1       | Hardcoded string detection           | Planned     |
+| 0.1       | Translation coverage                 | Planned     |
+| 0.1       | Terminal and JSON reporting          | Planned     |
+| 0.2       | HTML reports and autofix suggestions | Planned     |
+| 0.2       | CI/CD integration                    | Planned     |
+| 0.3       | Additional i18n adapters             | Planned     |
+| 0.4       | Visual localization testing          | Planned     |
+| 0.5       | Runtime diagnostics                  | Planned     |
 
-## Development Roadmap
+## Design principles
 
-| Milestone | Scope | Status |
-|---|---|---|
-| 0.1 | Project foundation and configuration | In progress |
-| 0.1 | Translation catalog analysis | Planned |
-| 0.1 | FormatJS source analysis | Planned |
-| 0.1 | Hardcoded string detection | Planned |
-| 0.1 | Translation coverage | Planned |
-| 0.1 | Terminal and JSON reporting | Planned |
-| 0.2 | HTML reports and autofix suggestions | Planned |
-| 0.2 | CI/CD integration | Planned |
-| 0.3 | Additional i18n adapters | Planned |
-| 0.4 | Visual localization testing | Planned |
-| 0.5 | Runtime diagnostics | Planned |
-
----
-
-## Design Principles
-
-LocaleLens follows a few core principles:
-
-**Framework independence**
-
-The core analysis engine should not depend on React or any specific frontend framework.
-
-**Extensibility**
-
-New analysis rules, parsers, adapters and reporters should be easy to introduce without changing the entire system.
-
-**Actionable findings**
-
-Reports should explain what went wrong, where it happened and how developers can investigate it.
-
-**Configurable analysis**
-
-Different projects have different internationalization conventions. Rules, severity and exclusions should be configurable.
-
-**Developer experience**
-
-Analysis should be predictable, reasonably fast and easy to integrate into existing development workflows.
-
----
+1. **Framework independence** — Core should not depend on React or any one frontend stack.
+2. **Extensibility** — New rules, parsers, adapters, and reporters should plug in without rewriting the engine.
+3. **Actionable findings** — Say what broke, where, and how to dig in.
+4. **Configurable analysis** — Projects differ; rules, severity, and exclusions should be tunable.
+5. **Developer experience** — Predictable, reasonably fast, easy to drop into an existing workflow.
 
 ## Contributing
 
-LocaleLens is currently in its early development stage.
-
-Contributions, suggestions and discussions are welcome as the project evolves.
-
-If you have ideas for additional analysis rules, supported i18n libraries or improvements to the developer experience, feel free to open an issue.
-
----
+Early days. Issues and ideas are welcome — especially new rules, i18n library support, or DX improvements.
 
 ## License
 
