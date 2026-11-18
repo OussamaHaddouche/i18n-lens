@@ -1,6 +1,6 @@
-# LocaleLens
+# i18n-lens
 
-LocaleLens scans your frontend source and translation catalogs for i18n problems: hardcoded strings, missing keys, unused messages, and coverage gaps.
+i18n-lens scans your frontend source and translation catalogs for i18n problems: hardcoded strings, missing keys, unused messages, and coverage gaps.
 
 > Under active development. APIs may change.
 
@@ -14,7 +14,7 @@ i18n bugs slip through lint and typecheck. Typical misses:
 - Catalogs that drift apart across languages
 - Incomplete coverage
 
-You usually find these by hand, or in production. LocaleLens turns that into automated checks you can run in CI.
+You usually find these by hand, or in production. i18n-lens turns that into automated checks you can run in CI.
 
 ## Features
 
@@ -64,7 +64,7 @@ Across configured locales:
 
 ## How it works
 
-LocaleLens pairs static source analysis with catalog inspection.
+i18n-lens pairs static source analysis with catalog inspection.
 
 ```text
        Frontend Source Code
@@ -119,7 +119,7 @@ The analysis engine stays framework-agnostic. React, FormatJS, and other specifi
 ## Planned architecture
 
 ```text
-localelens/
+i18n-lens/
 ├── packages/
 │   ├── core/
 │   │   ├── analyzer/
@@ -166,15 +166,15 @@ Rough shape of the intended API (not all of this exists yet):
 ### Install
 
 ```bash
-npm install -D localelens
+npm install -D i18n-lens
 ```
 
 ### Config
 
 ```ts
-// localelens.config.ts
+// i18n-lens.config.ts
 
-import { defineConfig } from "localelens";
+import { defineConfig } from "i18n-lens";
 
 export default defineConfig({
   framework: "react",
@@ -204,13 +204,13 @@ export default defineConfig({
 ### Run
 
 ```bash
-npx localelens analyze
+npx i18n-lens analyze
 ```
 
 ### Example output
 
 ```text
-LocaleLens
+i18n-lens
 
 Analyzing source files...
 Loading translation catalogs...

@@ -1,0 +1,16 @@
+{
+  "name": "i18n-lens",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "test:core": "pnpm --filter @i18n-lens/core test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.22.0",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
