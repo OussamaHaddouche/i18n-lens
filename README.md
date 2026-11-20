@@ -1,167 +1,100 @@
 # i18n-lens
 
-i18n-lens scans your frontend source and translation catalogs for i18n problems: hardcoded strings, missing keys, unused messages, and coverage gaps.
+CLI that finds i18n problems in React + FormatJS projects: hardcoded UI strings, missing translation keys, and unused messages.
 
-> Under active development. APIs may change.
+> Early development. APIs will change.
 
 ## The problem
 
-i18n bugs slip through lint and typecheck. Typical misses:
+Lint and typecheck do not catch most i18n mistakes. Common ones:
 
 - Hardcoded user-facing strings in components
-- Keys missing from one or more locales
-- Obsolete messages nothing references anymore
-- Catalogs that drift apart across languages
-- Incomplete coverage
+- Keys present in one locale but missing in others
+- Messages left in catalogs after the code stopped using them
 
-You usually find these by hand, or in production. i18n-lens turns that into automated checks you can run in CI.
+Those usually show up in review or in production. i18n-lens is meant to catch them in CI.
 
 ## Features
 
-### Static code analysis
+Nothing here ships yet. This is the near-term target for a first usable release:
 
-TypeScript and TSX source:
+### Source analysis (React / TSX)
 
 - [ ] Hardcoded JSX text
-- [ ] Hardcoded strings in JSX expressions
-- [ ] Hardcoded user-facing attributes (`placeholder`, `title`, `aria-label`, etc.)
-- [ ] Translation references from FormatJS APIs
-- [ ] Dynamically generated or unresolved translation references
+- [ ] Hardcoded strings in common UI attributes (`placeholder`, `title`, `aria-label`, …)
+- [ ] Message ids from FormatJS APIs (`FormattedMessage`, `useIntl`, `defineMessages`, …)
 
-### Translation catalog analysis
+### Catalog analysis
 
-Across configured locales:
-
-- [ ] Missing keys
-- [ ] Unused keys
-- [ ] Inconsistent catalogs
-- [ ] Interpolation variable validation
-- [ ] Configurable source locales
-
-### Translation coverage
-
-- [ ] Coverage per locale
-- [ ] Untranslated messages
-- [ ] Coverage summaries
-- [ ] Configurable thresholds
+- [ ] Missing keys across locales
+- [ ] Unused keys (in catalogs, never referenced from source)
+- [ ] Configurable source locale
 
 ### Reporting
 
 - [ ] Terminal output
-- [ ] JSON reports
-- [ ] HTML reports
-- [ ] Configurable rule severity
-- [ ] CI-friendly exit codes
+- [ ] JSON report
+- [ ] Rule severity in config (`warning` / `error`)
+- [ ] Non-zero exit code when errors are found
 
-### Later
-
-- [ ] Automatic translation descriptor generation
-- [ ] GitHub Actions + PR annotations
-- [ ] More i18n adapters (i18next, next-intl, etc.)
-- [ ] Visual localization testing with Playwright
-- [ ] RTL layout validation
-- [ ] Runtime translation diagnostics
+Out of scope for now: coverage percentages, HTML reports, autofix, other i18n libraries, visual/RTL checks.
 
 ## How it works
 
-i18n-lens pairs static source analysis with catalog inspection.
-
 ```text
-       Frontend Source Code
-              |
-              v
-       Source Analyzer
-              |
-              v
-      Extracted Message IDs
-              |
-              +-------------------+
-              |                   |
-              v                   v
-       Translation Catalogs   Source References
-              |                   |
-              +--------+----------+
-                       |
-                       v
-                Analysis Engine
-                       |
-             +---------+---------+
-             |         |         |
-             v         v         v
-          Missing   Unused    Coverage
-        Translations Messages  Analysis
-             |
-             v
-         Findings
-             |
-      +------+------+------+
-      |      |      |      |
-      v      v      v      v
-    CLI    JSON   HTML   CI/CD
+  Source files (TS/TSX)          Translation catalogs
+           |                              |
+           v                              v
+    Parser + FormatJS adapter      Catalog loader
+           |                              |
+           +--------------+---------------+
+                          |
+                          v
+                   Analysis (rules)
+                          |
+                          v
+                       Findings
+                          |
+              +-----------+-----------+
+              |                       |
+              v                       v
+           Terminal                  JSON
 ```
 
-The analysis engine stays framework-agnostic. React, FormatJS, and other specifics live in adapters.
+Core owns shared types, rules, and orchestration. Parsing and FormatJS-specific extraction live in separate packages so the engine stays small.
 
-## Technology stack
+## Stack
 
-| Technology              | Purpose                            |
-| ----------------------- | ---------------------------------- |
-| TypeScript              | Core implementation                |
-| TypeScript Compiler API | Source and AST analysis            |
-| FormatJS                | First i18n adapter                 |
-| Node.js                 | Runtime                            |
-| pnpm                    | Monorepo and packages              |
-| Vitest                  | Unit and integration tests         |
-| Commander               | CLI                                |
-| Zod                     | Config validation                  |
-| Playwright              | Planned visual localization tests  |
+| Technology              | Purpose                    |
+| ----------------------- | -------------------------- |
+| TypeScript              | Implementation             |
+| TypeScript Compiler API | Source / AST analysis      |
+| FormatJS                | First (and only) adapter   |
+| Node.js                 | Runtime                    |
+| pnpm                    | Monorepo                   |
+| Vitest                  | Tests                      |
+| Commander               | CLI                        |
+| Zod                     | Config validation          |
 
-## Planned architecture
+## Package layout
 
 ```text
 i18n-lens/
 ├── packages/
-│   ├── core/
-│   │   ├── analyzer/
-│   │   ├── rules/
-│   │   ├── catalog/
-│   │   ├── resolver/
-│   │   └── types/
-│   │
-│   ├── parser/
-│   │   └── typescript/
-│   │
-│   ├── adapter-formatjs/
-│   │
-│   ├── cli/
-│   │
-│   └── reporter/
-│       ├── terminal/
-│       ├── json/
-│       └── html/
-│
+│   ├── core/                 # types, rules, catalog logic, analyzer
+│   ├── parser/               # TypeScript/TSX parsing helpers
+│   ├── adapter-formatjs/     # FormatJS → core model
+│   ├── cli/                  # config + `analyze` command
+│   └── reporter/             # terminal + JSON
 ├── examples/
 │   └── react-formatjs/
-│
-├── tests/
-├── docs/
 ├── package.json
 └── pnpm-workspace.yaml
 ```
 
-**Core** — Framework-independent engine, types, rules, and findings.
+## Planned usage
 
-**Parser** — Parses source files and pulls out AST details the engine needs.
-
-**Adapters** — Map framework/i18n patterns into the core model. FormatJS first.
-
-**CLI** — How you configure and run analysis.
-
-**Reporters** — Turn findings into terminal, JSON, or HTML output.
-
-## Planned developer experience
-
-Rough shape of the intended API (not all of this exists yet):
+Shape of the API we are aiming for (not implemented yet):
 
 ### Install
 
@@ -177,26 +110,15 @@ npm install -D i18n-lens
 import { defineConfig } from "i18n-lens";
 
 export default defineConfig({
-  framework: "react",
-
-  i18n: {
-    adapter: "formatjs",
-    sourceLocale: "en",
-    locales: ["en", "fr", "ar"],
-    translations: "./src/locales/{{locale}}.json",
-  },
-
+  adapter: "formatjs",
+  sourceLocale: "en",
+  locales: ["en", "fr", "ar"],
+  translations: "./src/locales/{{locale}}.json",
   include: ["src/**/*.{ts,tsx}"],
-
   rules: {
-    "hardcoded-text": "warn",
+    "hardcoded-text": "warning",
     "missing-translation": "error",
-    "unused-translation": "warn",
-  },
-
-  coverage: {
-    enabled: true,
-    minimum: 90,
+    "unused-translation": "warning",
   },
 });
 ```
@@ -212,65 +134,50 @@ npx i18n-lens analyze
 ```text
 i18n-lens
 
-Analyzing source files...
-Loading translation catalogs...
-
 Source locale: en
-Detected locales: en, fr, ar
+Locales: en, fr, ar
 
-ANALYSIS SUMMARY
-
-Hardcoded strings       12
-Missing translations    8
-Unused translations    5
-
-TRANSLATION COVERAGE
-
-en    100.0%
-fr     94.2%
-ar     86.1%
+SUMMARY
+  hardcoded-text         12
+  missing-translation     8
+  unused-translation      5
 
 ISSUES
+  error  missing-translation  fr.json
+         Missing key: checkout.confirm
 
-ERROR  src/pages/Login.tsx:24
-       Hardcoded text: "Forgot password?"
+  error  hardcoded-text  src/pages/Login.tsx:24
+         Hardcoded text: "Forgot password?"
 
-ERROR  fr.json
-       Missing key: checkout.confirm
+  warning  unused-translation  ar.json
+           Unused key: dashboard.old_title
 
-WARNING ar.json
-        Unused key: dashboard.old_title
-
-Analysis completed.
+Finished with 2 error(s), 1 warning(s).
 ```
 
 ## Roadmap
 
-| Milestone | Scope                                | Status      |
-| --------- | ------------------------------------ | ----------- |
-| 0.1       | Project foundation and configuration | In progress |
-| 0.1       | Translation catalog analysis         | Planned     |
-| 0.1       | FormatJS source analysis             | Planned     |
-| 0.1       | Hardcoded string detection           | Planned     |
-| 0.1       | Translation coverage                 | Planned     |
-| 0.1       | Terminal and JSON reporting          | Planned     |
-| 0.2       | HTML reports and autofix suggestions | Planned     |
-| 0.2       | CI/CD integration                    | Planned     |
-| 0.3       | Additional i18n adapters             | Planned     |
-| 0.4       | Visual localization testing          | Planned     |
-| 0.5       | Runtime diagnostics                  | Planned     |
+| Version | Scope                                                                 | Status      |
+| ------- | --------------------------------------------------------------------- | ----------- |
+| 0.1     | Monorepo, shared types, Zod config, defaults merged with user config  | In progress |
+| 0.1     | Catalog missing / unused keys                                         | Planned     |
+| 0.1     | FormatJS message-id extraction + basic hardcoded JSX text             | Planned     |
+| 0.1     | Terminal reporter + exit codes                                        | Planned     |
+| 0.2     | JSON reporter, richer hardcoded-attribute checks                      | Planned     |
+| 0.3     | CI examples, tighter DX (better errors, config docs)                  | Planned     |
 
-## Design principles
+Further adapters, HTML reports, and autofix are backlog only after 0.1 is useful on a real app.
 
-1. **Framework independence** — Core should not depend on React or any one frontend stack.
-2. **Extensibility** — New rules, parsers, adapters, and reporters should plug in without rewriting the engine.
-3. **Actionable findings** — Say what broke, where, and how to dig in.
-4. **Configurable analysis** — Projects differ; rules, severity, and exclusions should be tunable.
-5. **Developer experience** — Predictable, reasonably fast, easy to drop into an existing workflow.
+## Design notes
+
+1. **React + FormatJS first** — One stack until the core loop works end to end.
+2. **Findings carry rule id + resolved severity** — Reporters should not need to re-read config.
+3. **Config is flat** — Locales, paths, adapter, and rules at the top level.
+4. **Keep packages thin** — Core stays free of TS compiler and FormatJS details.
 
 ## Contributing
 
-Early days. Issues and ideas are welcome — especially new rules, i18n library support, or DX improvements.
+Early days. Issues and ideas are welcome, especially once 0.1 exists and you can run it on a real project.
 
 ## License
 
