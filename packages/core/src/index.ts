@@ -1,6 +1,13 @@
+export {
+	defaultAdapter,
+	defaultConfig,
+	defaultRules,
+	mergeConfig,
+} from "./config";
 export type {
 	Adapter,
 	Config,
+	DefaultUserConfig,
 	Finding,
 	Locales,
 	Rule,
@@ -12,6 +19,7 @@ export type {
 export {
 	AdapterSchema,
 	ConfigSchema,
+	DefaultUserConfigSchema,
 	FindingSchema,
 	LocalesSchema,
 	RuleSchema,

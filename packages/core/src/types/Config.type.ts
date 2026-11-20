@@ -12,31 +12,35 @@ export const sourceLocaleSchema = z.string();
 export type SourceLocale = z.infer<typeof sourceLocaleSchema>;
 
 const sourceLocaleInLocales = {
-  check: (config: { locales: string[]; sourceLocale: string }) =>
-    config.locales.includes(config.sourceLocale),
-  message: { error: "Source locale must be one of the locales" },
+	check: (config: { locales: string[]; sourceLocale: string }) =>
+		config.locales.includes(config.sourceLocale),
+	message: { error: "Source locale must be one of the locales" },
 };
 
-export const ConfigSchema = z
-  .strictObject({
-    adapter: AdapterSchema,
-    locales: LocalesSchema,
-    sourceLocale: sourceLocaleSchema,
-    translations: z.string(),
-    include: z.array(z.string()).nonempty(),
-    rules: RulesSchema,
-  })
-  .refine(sourceLocaleInLocales.check, sourceLocaleInLocales.message);
+const ConfigObjectSchema = z.strictObject({
+	adapter: AdapterSchema,
+	locales: LocalesSchema,
+	sourceLocale: sourceLocaleSchema,
+	translations: z.string(),
+	include: z.array(z.string()).nonempty(),
+	rules: RulesSchema,
+});
+
+export const ConfigSchema = ConfigObjectSchema.refine(
+	sourceLocaleInLocales.check,
+	sourceLocaleInLocales.message,
+);
 export type Config = z.infer<typeof ConfigSchema>;
 
-export const UserConfigSchema = z
-  .strictObject({
-    adapter: AdapterSchema.optional(),
-    locales: LocalesSchema,
-    sourceLocale: sourceLocaleSchema,
-    translations: z.string(),
-    include: z.array(z.string()).nonempty(),
-    rules: z.partialRecord(RuleSchema, SeveritySchema),
-  })
-  .refine(sourceLocaleInLocales.check, sourceLocaleInLocales.message);
+export const UserConfigSchema = ConfigObjectSchema.omit({ rules: true })
+	.extend({
+		rules: z.partialRecord(RuleSchema, SeveritySchema),
+	})
+	.refine(sourceLocaleInLocales.check, sourceLocaleInLocales.message);
 export type UserConfig = z.infer<typeof UserConfigSchema>;
+
+export const DefaultUserConfigSchema = ConfigObjectSchema.pick({
+	adapter: true,
+	rules: true,
+});
+export type DefaultUserConfig = z.infer<typeof DefaultUserConfigSchema>;

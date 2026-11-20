@@ -65,16 +65,16 @@ Core owns shared types, rules, and orchestration. Parsing and FormatJS-specific 
 
 ## Stack
 
-| Technology              | Purpose                    |
-| ----------------------- | -------------------------- |
-| TypeScript              | Implementation             |
-| TypeScript Compiler API | Source / AST analysis      |
-| FormatJS                | First (and only) adapter   |
-| Node.js                 | Runtime                    |
-| pnpm                    | Monorepo                   |
-| Vitest                  | Tests                      |
-| Commander               | CLI                        |
-| Zod                     | Config validation          |
+| Technology              | Purpose                  |
+| ----------------------- | ------------------------ |
+| TypeScript              | Implementation           |
+| TypeScript Compiler API | Source / AST analysis    |
+| FormatJS                | First (and only) adapter |
+| Node.js                 | Runtime                  |
+| pnpm                    | Monorepo                 |
+| Vitest                  | Tests                    |
+| Commander               | CLI                      |
+| Zod                     | Config validation        |
 
 ## Package layout
 
@@ -110,16 +110,16 @@ npm install -D i18n-lens
 import { defineConfig } from "i18n-lens";
 
 export default defineConfig({
-  adapter: "formatjs",
-  sourceLocale: "en",
-  locales: ["en", "fr", "ar"],
-  translations: "./src/locales/{{locale}}.json",
-  include: ["src/**/*.{ts,tsx}"],
-  rules: {
-    "hardcoded-text": "warning",
-    "missing-translation": "error",
-    "unused-translation": "warning",
-  },
+	adapter: "formatjs",
+	sourceLocale: "en",
+	locales: ["en", "fr", "ar"],
+	translations: "./src/locales/{{locale}}.json",
+	include: ["src/**/*.{ts,tsx}"],
+	rules: {
+		"hardcoded-text": "warning",
+		"missing-translation": "error",
+		"unused-translation": "warning",
+	},
 });
 ```
 
@@ -157,14 +157,14 @@ Finished with 2 error(s), 1 warning(s).
 
 ## Roadmap
 
-| Version | Scope                                                                 | Status      |
-| ------- | --------------------------------------------------------------------- | ----------- |
-| 0.1     | Monorepo, shared types, Zod config, defaults merged with user config  | In progress |
-| 0.1     | Catalog missing / unused keys                                         | Planned     |
-| 0.1     | FormatJS message-id extraction + basic hardcoded JSX text             | Planned     |
-| 0.1     | Terminal reporter + exit codes                                        | Planned     |
-| 0.2     | JSON reporter, richer hardcoded-attribute checks                      | Planned     |
-| 0.3     | CI examples, tighter DX (better errors, config docs)                  | Planned     |
+| Version | Scope                                                                | Status      |
+| ------- | -------------------------------------------------------------------- | ----------- |
+| 0.1     | Monorepo, shared types, Zod config, defaults merged with user config | In progress |
+| 0.1     | Catalog missing / unused keys                                        | Planned     |
+| 0.1     | FormatJS message-id extraction + basic hardcoded JSX text            | Planned     |
+| 0.1     | Terminal reporter + exit codes                                       | Planned     |
+| 0.2     | JSON reporter, richer hardcoded-attribute checks                     | Planned     |
+| 0.3     | CI examples, tighter DX (better errors, config docs)                 | Planned     |
 
 Further adapters, HTML reports, and autofix are backlog only after 0.1 is useful on a real app.
 

@@ -1,6 +1,7 @@
 export type {
 	Adapter,
 	Config,
+	DefaultUserConfig,
 	Locales,
 	SourceLocale,
 	UserConfig,
@@ -8,6 +9,7 @@ export type {
 export {
 	AdapterSchema,
 	ConfigSchema,
+	DefaultUserConfigSchema,
 	LocalesSchema,
 	sourceLocaleSchema,
 	UserConfigSchema,
